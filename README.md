@@ -33,7 +33,7 @@ packages/          Lo que hay instalado: repos oficiales y AUR por separado
 ## Instalar en una máquina nueva
 
 ```bash
-git clone git@github.com:0980491/REPO.git ~/hyprland-dotfiles
+git clone git@github.com:0980491/Hyprland_config.git ~/hyprland-dotfiles
 cd ~/hyprland-dotfiles
 ./install.sh --dry-run     # mira primero qué va a hacer
 ./install.sh
