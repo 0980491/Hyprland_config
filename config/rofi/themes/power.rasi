@@ -1,0 +1,79 @@
+/* Power menu: a compact card, not a full-size list.
+   The input bar is deliberately not drawn — the options are the point, and the
+   uptime line takes its place at the top. Typing still filters the list: rofi
+   keeps handling keys whether or not the entry widget is on screen. */
+@import "shared.rasi"
+
+/* The Mono variant, not the one shared.rasi uses, because this is the only menu
+   whose rows start with a Nerd Font glyph. In the normal variant those glyphs
+   all advance one cell but their ink starts at the left edge and runs as wide
+   as it likes (655 units for the moon, 918 for the monitor), so the icons come
+   out left-aligned and ragged and the gap before the label changes per row.
+   Mono is the same typeface for the text — the Latin glyphs are metrically
+   identical — with every icon scaled into the cell and centred in it. */
+* {
+    font:                        "JetBrainsMono Nerd Font Mono 10";
+}
+
+window {
+    width:                       calc(17em min 92%);
+    border:                      1px;
+    border-radius:               14px;
+}
+
+mainbox {
+    padding:                     10px;
+    spacing:                     8px;
+    children:                    [ "message", "listview" ];
+}
+
+/* uptime / confirmation question: a caption, not a box.
+   The 3ch on the right is the same correction the rows get below — this line
+   leads with an icon too, and it is its words that should sit on the midline. */
+message {
+    background-color:            transparent;
+    padding:                     2px 3ch 0px 0px;
+}
+
+textbox {
+    text-color:                  @fg-dim;
+    horizontal-align:            0.5;
+    markup:                      true;
+}
+
+listview {
+    columns:                     1;
+    lines:                       6;
+    spacing:                     2px;
+    dynamic:                     true;
+    scrollbar:                   false;
+    fixed-height:                false;
+}
+
+/* What has to land on the midline of the card is the label — Lock, Suspend,
+   Power off — with the icon hanging off to its left, outside the reckoning.
+   rofi centres the row as one string, icon included, so the padding takes the
+   icon back out: every row is prefixed by one icon plus two spaces, the whole
+   of it exactly three cells wide now the font is the Mono variant, and putting
+   3ch of that on the right and none on the left moves the string half a prefix
+   left — which is precisely what puts the label in the middle. In `ch` rather
+   than px so it survives a change of font size; `ch` is the width of a digit,
+   and in a monospaced face that is the cell.
+
+   element-icon has to go as well: no row here carries an image icon, but the
+   widget still claims its 1.35em box plus the row spacing at the left, and the
+   text would then centre inside whatever is left over.
+
+   The pill does not move — padding is inside the element, so selection still
+   spans the full width of the row. */
+element {
+    padding:                     7px 3ch 7px 0px;
+    border-radius:               9px;
+    spacing:                     10px;
+    children:                    [ "element-text" ];
+}
+
+element-text {
+    vertical-align:              0.5;
+    horizontal-align:            0.5;
+}

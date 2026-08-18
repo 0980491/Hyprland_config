@@ -1,0 +1,131 @@
+/* Shared base for every menu. Colours come from colors.rasi (matugen).
+
+   Sizes are in pixels and stay in pixels: a menu is meant to come out the same
+   size, with the same text, on every monitor. What each theme adds on top is a
+   `calc(<size> min <percent>%)` ceiling on the window, so a screen with less
+   usable desktop than DP-3 (DP-1 has 1280x720 at scale 1.5, and that is also
+   what the remote session sees) gets the menu shrunk to fit instead of having
+   its right-hand side cut off. */
+@import "../colors.rasi"
+
+* {
+    font:                        "JetBrainsMono Nerd Font 11";
+
+    /* The containers, not the surfaces. matugen's surface-* tones are almost
+       neutral: opaque, they read as a dead grey slab that could belong to any
+       wallpaper. The *-container tones carry the wallpaper's actual colour, so
+       the menu looks like it came out of the image behind it.
+       bg-alt is the more saturated of the two because in the launcher it is
+       what sits directly on the wallpaper (search box and mode buttons), and
+       the selected row goes all the way up to the accent itself. */
+    bg:                          @secondary-container;
+    bg-alt:                      @primary-container;
+    bg-sel:                      @primary;
+    fg:                          @on-surface;
+    fg-dim:                      @on-surface-variant;
+    accent:                      @primary;
+    urgent:                      @error;
+
+    background-color:            transparent;
+    text-color:                  @fg;
+    margin:                      0;
+    padding:                     0;
+    spacing:                     0;
+}
+
+window {
+    transparency:                "real";
+    location:                    center;
+    anchor:                      center;
+    fullscreen:                  false;
+    border:                      2px;
+    border-color:                @accent;
+    border-radius:               16px;
+    background-color:            @bg;
+    cursor:                      "default";
+}
+
+mainbox {
+    padding:                     16px;
+    spacing:                     12px;
+    children:                    [ "inputbar", "message", "listview" ];
+}
+
+inputbar {
+    background-color:            @bg-alt;
+    border-radius:               12px;
+    padding:                     10px 14px;
+    spacing:                     10px;
+    children:                    [ "prompt", "entry" ];
+}
+
+prompt {
+    text-color:                  @accent;
+    vertical-align:              0.5;
+}
+
+entry {
+    placeholder:                 "Type to search…";
+    placeholder-color:           @fg-dim;
+    vertical-align:              0.5;
+    cursor:                      text;
+}
+
+message {
+    background-color:            @bg-alt;
+    border-radius:               10px;
+    padding:                     8px 12px;
+}
+
+textbox {
+    text-color:                  @fg-dim;
+    vertical-align:              0.5;
+    markup:                      true;
+}
+
+listview {
+    columns:                     1;
+    lines:                       10;
+    cycle:                       true;
+    dynamic:                     true;
+    scrollbar:                   false;
+    fixed-height:                false;
+    spacing:                     4px;
+}
+
+element {
+    padding:                     9px 12px;
+    border-radius:               10px;
+    spacing:                     12px;
+    cursor:                      pointer;
+}
+
+element normal.normal   { text-color: @fg; }
+element alternate.normal { text-color: @fg; }
+element normal.urgent   { text-color: @urgent; }
+element normal.active   { text-color: @accent; }
+
+element selected.normal {
+    background-color:            @bg-sel;
+    text-color:                  @on-primary;
+}
+element selected.urgent {
+    background-color:            @urgent;
+    text-color:                  @on-error;
+}
+element selected.active {
+    background-color:            @accent;
+    text-color:                  @on-primary;
+}
+
+element-icon {
+    size:                        1.35em;
+    vertical-align:              0.5;
+    cursor:                      inherit;
+}
+
+element-text {
+    vertical-align:              0.5;
+    cursor:                      inherit;
+    text-color:                  inherit;
+}

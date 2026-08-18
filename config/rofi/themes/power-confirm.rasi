@@ -1,0 +1,21 @@
+/* Confirmation dialog: the power card cut down to the question.
+   It only ever holds Yes and No, so it does not need the width power.rasi needs
+   to fit "Restart the shell". The centred rows come from power.rasi now — both
+   cards centre their rows, so they read as the same dialog twice. */
+@import "power.rasi"
+
+window {
+    width:                       calc(10em min 80%);
+}
+
+/* Symmetric padding again, undoing the 3ch power.rasi holds on the right of
+   its rows and its caption to discount their icons. Nothing here leads with an
+   icon — the question and Yes/No are letters all the way across — so centring
+   the string already centres the words. */
+message {
+    padding:                     2px 6px 0px 6px;
+}
+
+element {
+    padding:                     7px 12px;
+}

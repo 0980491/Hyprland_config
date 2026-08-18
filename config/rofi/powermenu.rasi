@@ -1,0 +1,57 @@
+* {
+    font: "JetBrainsMono Nerd Font Mono 72";
+    fg: #ffffff;
+}
+
+window {
+    fullscreen: true;
+    background-color: transparent;
+    blur: 1;
+}
+
+mainbox {
+    background-color: rgba(0, 0, 0, 0.45); /* ← EL ÚNICO FONDO */
+    children: [ vbox ];
+}
+
+vbox {
+    expand: true;
+    background-color: transparent;
+    children: [ spacer, hbox, spacer ];
+}
+
+hbox {
+    expand: true;
+    background-color: transparent;
+    children: [ spacer, listview, spacer ];
+}
+
+spacer {
+    expand: true;
+    background-color: transparent;
+}
+
+listview {
+    layout: horizontal;
+    spacing: 80px;
+    background-color: rgba(255, 255, 255, 1);
+}
+
+element {
+    background-color: rgba(255, 255, 255, 0.0);
+    padding: 40px 80px;
+    border-radius: 30px;
+}
+
+element selected {
+    background-color: rgba(255, 255, 255, 0.0);
+}
+
+element-text {
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+}
+
+entry, prompt, textbox-prompt-colon {
+    enabled: false;
+}

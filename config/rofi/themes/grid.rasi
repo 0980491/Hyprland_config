@@ -1,0 +1,12 @@
+/* Preview grid for wallpapers. */
+@import "shared.rasi"
+
+configuration { scroll-method: 0; }
+
+/* The min() ceilings are so a menu never opens wider or taller than the screen
+   it lands on — see the note in launcher.rasi. */
+window   { width: calc(70em min 92%); height: calc(44em min 88%); }
+listview { columns: 4; lines: 3; spacing: 10px; }
+element  { orientation: vertical; padding: 8px; }
+element-icon { size: 9.5em; horizontal-align: 0.5; }
+element-text { horizontal-align: 0.5; }

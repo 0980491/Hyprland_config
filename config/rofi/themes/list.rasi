@@ -1,0 +1,5 @@
+/* Compact menu: wifi, bluetooth, power, screenshots… */
+@import "shared.rasi"
+
+window   { width: calc(30em min 92%); }
+listview { columns: 1; lines: 8; }

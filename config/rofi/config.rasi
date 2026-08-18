@@ -1,0 +1,26 @@
+/* Base rofi config (rofi 2.x, native Wayland).
+   Colours come from colors.rasi, which matugen writes from the wallpaper. */
+configuration {
+    modes:                      "drun,run,window,filebrowser";
+    font:                       "JetBrainsMono Nerd Font 11";
+    show-icons:                 true;
+    icon-theme:                 "breeze-dark";
+    display-drun:               "Apps";
+    display-run:                "Run";
+    display-window:             "Windows";
+    display-filebrowser:        "Files";
+    drun-display-format:        "{name}";
+    drun-match-fields:          "name,generic,exec,categories,keywords";
+    window-format:              "{c}   {t}";
+    terminal:                   "kitty";
+    matching:                   "fuzzy";
+    sort:                       true;
+    sorting-method:             "fzf";
+    scroll-method:              0;
+    kb-row-up:                  "Up,Control+k";
+    kb-row-down:                "Down,Control+j";
+    kb-accept-entry:            "Return,KP_Enter";
+    kb-remove-to-eol:           "";
+    kb-mode-next:               "Shift+Right,Control+Tab";
+    kb-mode-previous:           "Shift+Left,Control+ISO_Left_Tab";
+}

@@ -1,0 +1,141 @@
+/* App launcher.
+   Left column: search box, the current wallpaper, and the mode buttons.
+   Right column: the results list.
+
+   The wallpaper is painted as the window background and every other widget is
+   opaque, so the image only shows through the left gap.
+
+   The image is scaled to the window ("both"), not drawn at its own size. Drawn
+   at its own size it came out proportional to the screen's resolution instead
+   of to the launcher: on DP-3 it filled the gap, and on DP-1 — half the desktop
+   space — it covered a quarter of it and left black around it. Scaled to the
+   window it is the same picture, framed the same way, on every monitor.
+   ~/.cache/wallpaper/launcher.png is written by wallpaper.sh at the launcher's
+   own 2:1 ratio, with the picture in the left half (the only part that shows)
+   so nothing is stretched out of shape.
+
+   1000x500 on every monitor, text included — the min() is only a ceiling for a
+   screen that cannot fit that, which would otherwise get the right-hand half
+   cut off instead of a slightly smaller launcher. */
+@import "shared.rasi"
+
+configuration {
+    show-icons:                  true;
+    display-drun:                "APPS";
+    display-run:                 "RUN";
+    display-filebrowser:         "FILES";
+    display-window:              "WINDOW";
+}
+
+window {
+    width:                       calc(1000px min 92%);
+    height:                      calc(500px min 88%);
+    border:                      2px;
+    border-color:                @accent;
+    border-radius:               16px;
+    background-color:            @bg;
+    background-image:            url("/home/ooooooooo/.cache/wallpaper/launcher.png", both);
+    children:                    [ "mainbox" ];
+}
+
+mainbox {
+    orientation:                 horizontal;
+    padding:                     0;
+    spacing:                     0;
+    children:                    [ "leftbox", "listbox" ];
+}
+
+/* ─────────────── left: search, wallpaper, mode buttons ─────────────── */
+leftbox {
+    orientation:                 vertical;
+    expand:                      false;
+    /* half the launcher, and it has to shrink with it */
+    width:                       calc(500px min 46%);
+    padding:                     0;
+    spacing:                     0;
+    background-color:            transparent;
+    children:                    [ "inputbar", "dummy", "mode-switcher" ];
+}
+
+inputbar {
+    expand:                      false;
+    background-color:            @bg-alt;
+    border-radius:               12px;
+    padding:                     12px 16px;
+    margin:                      14px;
+    spacing:                     10px;
+    children:                    [ "prompt", "entry" ];
+}
+
+prompt {
+    enabled:                     true;
+    text-color:                  @accent;
+    vertical-align:              0.5;
+    str:                         "";
+}
+
+entry {
+    placeholder:                 "Search";
+    placeholder-color:           @fg-dim;
+    vertical-align:              0.5;
+    cursor:                      text;
+}
+
+/* the gap where the wallpaper shows through */
+dummy {
+    expand:                      true;
+    background-color:            transparent;
+}
+
+mode-switcher {
+    expand:                      false;
+    orientation:                 horizontal;
+    spacing:                     10px;
+    margin:                      14px;
+    background-color:            transparent;
+}
+
+button {
+    padding:                     11px;
+    border-radius:               10px;
+    background-color:            @bg-alt;
+    text-color:                  @fg;
+    cursor:                      pointer;
+}
+
+button selected {
+    background-color:            @accent;
+    text-color:                  @on-primary;
+}
+
+/* ─────────────────────── right: the results ─────────────────────── */
+/* Same tone as the search box and the mode buttons on the left, not the duller
+   @bg: this panel is half the launcher, and the flatter container colour made
+   the whole right side look washed out next to the wallpaper. */
+listbox {
+    orientation:                 vertical;
+    padding:                     14px;
+    spacing:                     0;
+    background-color:            @bg-alt;
+    border-radius:               0px 14px 14px 0px;
+    children:                    [ "listview" ];
+}
+
+listview {
+    columns:                     1;
+    lines:                       8;
+    spacing:                     4px;
+    scrollbar:                   false;
+    fixed-height:                true;
+    dynamic:                     false;
+}
+
+element {
+    padding:                     10px 12px;
+    border-radius:               10px;
+    spacing:                     12px;
+}
+
+element-icon {
+    size:                        1.6em;
+}

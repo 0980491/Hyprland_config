@@ -1,0 +1,24 @@
+# Módulo del shell. Los singletons y componentes deben declararse aquí.
+singleton Theme 1.0 Theme.qml
+singleton Config 1.0 Config.qml
+singleton Sys 1.0 Sys.qml
+singleton Notifications 1.0 Notifications.qml
+singleton Panels 1.0 Panels.qml
+singleton Hypr 1.0 Hypr.qml
+
+BarItem 1.0 BarItem.qml
+Island 1.0 Island.qml
+IconButton 1.0 IconButton.qml
+PopupCard 1.0 PopupCard.qml
+QuickSettings 1.0 QuickSettings.qml
+Bar 1.0 Bar.qml
+Workspaces 1.0 Workspaces.qml
+ClockWidget 1.0 ClockWidget.qml
+ResourcesWidget 1.0 ResourcesWidget.qml
+VolumeWidget 1.0 VolumeWidget.qml
+NetworkWidget 1.0 NetworkWidget.qml
+NotificationsWidget 1.0 NotificationsWidget.qml
+NotificationToasts 1.0 NotificationToasts.qml
+UtilsWidget 1.0 UtilsWidget.qml
+Overview 1.0 Overview.qml
+WallpaperPicker 1.0 WallpaperPicker.qml

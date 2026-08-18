@@ -1,0 +1,6 @@
+/* Emoji picker. */
+@import "shared.rasi"
+
+window   { width: calc(42em min 92%); }
+listview { columns: 1; lines: 10; }
+* { font: "JetBrainsMono Nerd Font 12"; }
