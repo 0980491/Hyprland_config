@@ -21,6 +21,12 @@ STATE="$STATE_DIR/wallpaper.json"
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/wallpaper"
 WE_SHOT="$CACHE_DIR/we-shot.png"
 CURRENT="$IMG_DIR/Current/current.png"   # used by hyprlock and the shell
+# The projector (DP-1) is always a static still — the same image hyprlock uses
+# (CURRENT) — never an animated Wallpaper Engine scene: it is idle most of the
+# time and only shows between fullscreen content, so animating it just burns GPU.
+# "Apply to all monitors" (the picker's default) keeps DP-1 on the still; target
+# it explicitly (wallpaper-picker --monitor DP-1) to override for one change.
+STATIC_MON="${WALL_STATIC_MON:-DP-1}"
 
 # Per-scene cache. W holds the still we captured for a Wallpaper Engine scene,
 # M holds the palette we pulled out of it. Both are keyed by the workshop id, so
@@ -208,11 +214,11 @@ we_start() {
     main="$(main_monitor)"
     args+=(--assets-dir "$WE_ASSETS" --fps "$WE_FPS" --scaling fill)
     # --silent mutes, but the process still keeps a Stream/Output/Audio node
-    # wired into the same PipeWire graph as the speakers. Taking it out is done
-    # with the WirePlumber rule in ~/.config/wireplumber/wireplumber.conf.d/,
-    # not with --no-audio-processing: that flag only turns off the analysis that
-    # makes audio-reactive scenes pulse to whatever is playing, and it does not
-    # remove the node anyway (tested).
+    # wired into the same PipeWire graph as the speakers, and --no-audio-processing
+    # does not remove it either: that flag only turns off the analysis that makes
+    # audio-reactive scenes pulse to whatever is playing (tested).
+    #
+    # Keeping it out of the graph is PIPEWIRE_PROPS, exported just below.
     [[ "$WE_VOLUME" == "0" ]] && args+=(--silent) || args+=(--volume "$WE_VOLUME")
     # Pause the background only while the fullscreen game is focused, so the
     # wallpaper on the other monitor keeps running.
@@ -260,7 +266,26 @@ we_start() {
     # outlives the script that started it, and while it held that descriptor the
     # lock was never released: every later refresh saw "one is already pending"
     # and returned without doing anything, which is the whole point of it.
-    setsid linux-wallpaperengine "${args[@]}" \
+    # node.autoconnect = false leaves every stream this process opens in place
+    # but never links it to the speakers. It has to be the environment variable
+    # rather than a stream.rules match in ~/.config/pipewire/client.conf.d/:
+    # since r627 (2026-08-18) a video scene plays through libmpv, and those
+    # nodes announce themselves as application.name = "mpv" with none of the
+    # host process properties a rule could match on, so they walked straight
+    # back into the graph the speakers are scheduled with. Two extra nodes on
+    # the output driver, xruns climbing, crackling in everything else playing.
+    # PIPEWIRE_PROPS is inherited by the whole process, libmpv included.
+    #
+    # Only autoconnect. Adding node.always-process = false and
+    # node.want-driver = false does get the nodes off the speaker's driver, but
+    # it breaks the wallpaper: mpv syncs video to the audio clock, and a stream
+    # that is never scheduled never advances, so the scene freezes with its
+    # layer surface at alpha 0 and the process stops dying cleanly on the
+    # pkill in we_stop -- three of them had piled up. Do not put those two back.
+    #
+    # Drop this (and set WE_VOLUME) if you ever want wallpaper sound.
+    setsid env PIPEWIRE_PROPS='{ node.autoconnect = false }' \
+        linux-wallpaperengine "${args[@]}" \
         >"$CACHE_DIR/we.log" 2>&1 < /dev/null 9>&- &
     disown
 
@@ -518,7 +543,19 @@ theme_cached() {
 }
 
 # ─────────────────────────────── actions ────────────────────────────────────
-apply() {
+pin_static() {
+    # Keep the projector on the fresh hyprlock still. Runs after apply_core(), so
+    # current.png has already been rewritten by the theme step (img_apply inside
+    # apply_core ran before that and would have shown the previous frame).
+    [[ "$(st ".monitors[\"$STATIC_MON\"] | .type")" == "image" ]] || return 0
+    [[ -f "$CURRENT" ]] || return 0
+    awww_ready
+    awww img "$CURRENT" -o "$STATIC_MON" >/dev/null 2>&1 || true
+}
+
+apply() { apply_core "$@"; local rc=$?; pin_static; return $rc; }
+
+apply_core() {
     we_stop
     local need_we=0
     [[ "$(st '[.monitors[] | select(.type=="we")] | length')" != "0" ]] && need_we=1
@@ -598,7 +635,11 @@ set_image() {
         st_set '.monitors = {}'
         while read -r m; do
             [[ -z "$m" ]] && continue
-            st_set ".monitors[\"$m\"] = {\"type\":\"image\",\"path\":\"$path\"}"
+            if [[ "$m" == "$STATIC_MON" ]]; then
+                st_set ".monitors[\"$m\"] = {\"type\":\"image\",\"path\":\"$CURRENT\"}"
+            else
+                st_set ".monitors[\"$m\"] = {\"type\":\"image\",\"path\":\"$path\"}"
+            fi
         done < <(monitors)
     fi
     apply
@@ -614,7 +655,11 @@ set_we() {
         st_set '.monitors = {}'
         while read -r m; do
             [[ -z "$m" ]] && continue
-            st_set ".monitors[\"$m\"] = {\"type\":\"we\",\"id\":\"$id\"}"
+            if [[ "$m" == "$STATIC_MON" ]]; then
+                st_set ".monitors[\"$m\"] = {\"type\":\"image\",\"path\":\"$CURRENT\"}"
+            else
+                st_set ".monitors[\"$m\"] = {\"type\":\"we\",\"id\":\"$id\"}"
+            fi
         done < <(monitors)
     fi
     apply

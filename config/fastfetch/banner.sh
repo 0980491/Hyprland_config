@@ -11,6 +11,10 @@
 # ~/.config/fastfetch/donut give the torus — and redraws the block in place by
 # walking the cursor back up.
 #
+# The donut comes in several sizes (donut/48x20, donut/34x14, donut/24x10) and
+# the widest one that fits beside the box wins. Only one size existed before,
+# which meant any terminal under 89 columns dropped the animation silently.
+#
 #   FF_DONUT=0        no animation, plain fastfetch with logo.txt
 #   FF_DONUT_SECS=5   stop by itself after 5 seconds (default: never)
 #   FF_DONUT_FPS=25   faster (default 15; the frames are ~3.6 degrees apart)
@@ -44,28 +48,56 @@ mapfile -t INFO < <(ff --logo none --pipe false 2>/dev/null)
 IW=$(printf '%s\n' "${INFO[@]}" | sed 's/\x1b\[[0-9;]*m//g' | wc -L)
 (( IW < 20 )) && IW=44
 
-# ── frames ──
-mapfile -t FILES < <(find "$DIR" -maxdepth 1 -name '*.txt' | sort)
-(( ${#FILES[@]} )) || exec fastfetch
-
-W=0; FH=0
-for f in "${FILES[@]}"; do
-    mapfile -t lines < "$f"
-    (( ${#lines[@]} > FH )) && FH=${#lines[@]}
-    for l in "${lines[@]}"; do (( ${#l} > W )) && W=${#l}; done
-done
-
-H=$(( FH > ${#INFO[@]} ? FH : ${#INFO[@]} ))
-IOFF=$(( (H - ${#INFO[@]}) / 2 ))       # centre the box against the donut
-
-# Not enough room to lay them side by side? Fall back rather than wrap — and
-# drop the logo entirely rather than run plain fastfetch, because logo.txt is
-# a donut too and would wrap just the same in a narrow window.
 COLS=${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}
 ROWS=$(tput lines 2>/dev/null || echo 24)
-if (( COLS < W + GAP + IW || ROWS < H + 1 )); then
-    exec fastfetch --logo none
+
+# ── frames ──
+# One directory per size, widest first. The -name glob skips the ".48x20.new"
+# scratch directories make-donut.py renders into, which are half-written.
+mapfile -t SETS < <(
+    find "$DIR" -mindepth 1 -maxdepth 1 -type d -name '[0-9]*x[0-9]*' -printf '%f\n' 2>/dev/null |
+    sort -t x -k1,1nr
+)
+# An install whose frames were never regenerated has them loose in donut/.
+(( ${#SETS[@]} )) || SETS=("")
+
+# FILES/W/FH for one frame directory; false if it holds no frames.
+measure() {
+    mapfile -t FILES < <(find "$1" -maxdepth 1 -name '*.txt' | sort)
+    W=0; FH=0
+    local f l
+    for f in "${FILES[@]}"; do
+        mapfile -t lines < "$f"
+        (( ${#lines[@]} > FH )) && FH=${#lines[@]}
+        for l in "${lines[@]}"; do (( ${#l} > W )) && W=${#l}; done
+    done
+    (( ${#FILES[@]} ))
+}
+
+# The widest donut that still leaves room for the box beside it. NEED_W/NEED_H
+# end up holding the requirement of the smallest size, which is what to report
+# if not even that one fits.
+FOUND=0; NEED_W=0; NEED_H=0
+for s in "${SETS[@]}"; do
+    measure "$DIR${s:+/$s}" || continue
+    H=$(( FH > ${#INFO[@]} ? FH : ${#INFO[@]} ))
+    NEED_W=$(( W + GAP + IW )); NEED_H=$(( H + 1 ))
+    if (( COLS >= NEED_W && ROWS >= NEED_H )); then FOUND=1; break; fi
+done
+
+# Nothing fits: print the box on its own rather than let the animation wrap,
+# and say why. Dropping the logo instead of running plain fastfetch because
+# logo.txt is a donut too and would wrap just the same in a narrow window.
+if (( ! FOUND )); then
+    (( NEED_W )) || exec fastfetch      # no frames anywhere: nothing to pick from
+    fastfetch --logo none
+    printf '\e[2m  (donut needs %dx%d, this terminal is %dx%d — widen it, or\n' \
+        "$NEED_W" "$NEED_H" "$COLS" "$ROWS"
+    printf '   add a smaller size to WIDTHS in make-donut.py)\e[0m\n'
+    exit 0
 fi
+
+IOFF=$(( (H - ${#INFO[@]}) / 2 ))       # centre the box against the donut
 
 # ── colour: the same accent matugen gave everything else ──
 COLOR=$'\e[1;38;2;255;178;183m'

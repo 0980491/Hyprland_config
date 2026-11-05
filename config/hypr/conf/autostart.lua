@@ -27,6 +27,11 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("hypridle")
     hl.exec_cmd(V.scripts .. "/caffeine.sh sync")
 
+    -- 6a) The PC sometimes powers itself back on seconds after a clean poweroff
+    -- (WoL misfire, suspected). If this boot is one of those and nobody touches
+    -- anything for 5 min, this powers it off again. Does nothing on a normal boot.
+    hl.exec_cmd(V.scripts .. "/wake-guard.sh")
+
     -- 6b) Drag a tiled window to another workspace with the wheel and Hyprland
     -- leaves it floating. This listens on the event socket and tiles it back.
     hl.exec_cmd(V.scripts .. "/keep-tiled.py")

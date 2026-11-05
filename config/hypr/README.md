@@ -63,7 +63,8 @@ Sunshine/Moonlight and the client swallows the SUPER key.
 | `SUPER TAB` | workspace overview (cards with the windows on each one) |
 | `SUPER SHIFT T` | toggle gaps |
 | `SUPER SHIFT R` | restart the shell |
-| `SUPER SHIFT I` / `SUPER SHIFT O` | HDMI in iPad mode / back to normal |
+| `SUPER I` / `SUPER O` | HDMI in iPad mode / back to normal |
+| `SUPER SHIFT I` / `SUPER SHIFT O` | iPad mode with every other output off (Moonlight) / all monitors back |
 
 There is deliberately **no bind that quits Hyprland**. `SUPER M` used to, and it
 got pressed by accident often enough to be worth removing; logging out is in the

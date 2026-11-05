@@ -29,6 +29,21 @@ hl.window_rule({
     center     = true,
 })
 
+-- Hyprland stops sending wl_surface.frame callbacks to a window it is not
+-- drawing (hidden workspace, or just unfocused). Qt's Wayland backend blocks
+-- its repaint loop until that callback arrives, so if a resize lands in that
+-- window -- retiling because another window opened, or moving to another
+-- workspace -- Dolphin gets stuck holding the old buffer: it never re-lays out
+-- to the new size and never repaints, so selections and hover do nothing even
+-- though the process is perfectly alive (it still answers D-Bus).
+-- render_unfocused keeps the frames flowing at misc:render_unfocused_fps (15),
+-- which is enough to keep Qt's repaint loop from ever parking.
+hl.window_rule({
+    name  = "kde-keep-frames-flowing",
+    match = { class = "^org\\.kde\\.dolphin$" },
+    render_unfocused = true,
+})
+
 -- ═══════════════════════════ FLOATING WINDOWS ═══════════════════════════════
 
 -- RE2 regex, one pattern per line. In Lua "\\." is a literal dot for RE2.
@@ -116,6 +131,16 @@ hl.window_rule({
     no_anim      = true,
     idle_inhibit = "focus",
     no_vrr       = false,
+})
+
+-- Projector (DP-1): present fullscreen windows immediately to shave the last few
+-- ms of latency. The real latency fix lives in the projector's own menu — Picture
+-- Format = 4:3 + Digital Zoom = 100% (NEVER use digital zoom, it adds ~100 ms).
+-- Hyprland only actually tears while the window is fullscreen.
+hl.window_rule({
+    name  = "projector-immediate",
+    match = { workspace = "m[DP-1]" },
+    immediate = true,
 })
 
 -- Launchers: don't steal focus mid-game
@@ -280,6 +305,11 @@ hl.layer_rule({ name = "blur-waybar",  match = { namespace = "^waybar$" },  blur
 hl.layer_rule({ name = "blur-swaync",  match = { namespace = "^swaync" },   blur = true, ignore_alpha = 0.3 })
 hl.layer_rule({ name = "blur-wlogout", match = { namespace = "^logout" },   blur = true })
 hl.layer_rule({ name = "no-anim-lock", match = { namespace = "^hyprlock$" }, no_anim = true })
+
+-- slurp's selection box must vanish the instant the region is picked: with the
+-- layersOut fade it is still on screen when grim captures, and its border ends
+-- up baked into the edges of every region screenshot.
+hl.layer_rule({ name = "no-anim-slurp", match = { namespace = "^selection$" }, no_anim = true })
 
 -- The wallpaper layer (awww / wallpaper engine) must never blur or animate
 hl.layer_rule({ name = "wallpaper", match = { namespace = "^(awww|swww|wallpaperengine)" }, no_anim = true, order = -1 })

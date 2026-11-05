@@ -19,6 +19,23 @@ ShellRoot {
     //   qs ipc call panel toggle calendar|notifications|volume
     //   qs ipc call panel close
     //   qs ipc call panel dnd
+    // The settings window. Its own target rather than another name under
+    // `panel`, so `qs ipc call settings open` reads like what it does.
+    IpcHandler {
+        target: "settings"
+
+        function toggle(): void { Panels.toggle("settings", Panels.focusedScreenName()); }
+        function open(): void { Panels.set("settings", Panels.focusedScreenName()); }
+        function close(): void { Panels.close(); }
+
+        // Straight to one page:
+        //   qs ipc call settings show general|appearance|wallpaper|notifications|monitors|bluetooth
+        function show(page: string): void {
+            Panels.settingsPage = page;
+            Panels.set("settings", Panels.focusedScreenName());
+        }
+    }
+
     IpcHandler {
         target: "panel"
 
@@ -52,5 +69,11 @@ ShellRoot {
     Variants {
         model: Quickshell.screens
         delegate: WallpaperPicker {}
+    }
+
+    // Settings window, same deal again
+    Variants {
+        model: Quickshell.screens
+        delegate: Settings {}
     }
 }

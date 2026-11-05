@@ -14,15 +14,15 @@
   "logo": {
     "type": "file",
     "source": "~/.config/fastfetch/logo.txt",
-    "color": { "1": "#a4c9fe" },
+    "color": { "1": "#f9bb72" },
     "padding": { "top": 1, "left": 1, "right": 3 }
   },
 
   "display": {
     "separator": "│ ",
     "color": {
-      "output": "#e1e2e9",
-      "separator": "#8d9199"
+      "output": "#eee0d5",
+      "separator": "#9d8e81"
     }
   },
 
@@ -31,21 +31,21 @@
   // 12 columns, and the box lines are 13 wide, so the right edge stays straight.
   // Change a label and you have to re-pad that key.
   "modules": [
-    { "type": "custom", "format": "╭───────────╮", "outputColor": "#8d9199" },
+    { "type": "custom", "format": "╭───────────╮", "outputColor": "#9d8e81" },
 
-    { "type": "title",    "key": "│ \uf007  user   ", "keyColor": "#a4c9fe",   "format": "{user-name}" },
-    { "type": "title",    "key": "│ \ue714  hname  ", "keyColor": "#d9bde3",  "format": "{host-name}" },
-    { "type": "os",       "key": "│ \uf83c  distro ", "keyColor": "#a4c9fe",   "format": "{name}" },
-    { "type": "kernel",   "key": "│ \uf824  kernel ", "keyColor": "#bcc7db", "format": "{release}" },
-    { "type": "uptime",   "key": "│ \uf017  uptime ", "keyColor": "#d9bde3" },
-    { "type": "shell",    "key": "│ \uf489  shell  ", "keyColor": "#a4c9fe",   "format": "{pretty-name} {version}" },
-    { "type": "packages", "key": "│ \uf8d5  pkgs   ", "keyColor": "#bcc7db", "format": "{all}" },
-    { "type": "memory",   "key": "│ \uf85a  memory ", "keyColor": "#d9bde3" },
+    { "type": "title",    "key": "│ \uf007  user   ", "keyColor": "#f9bb72",   "format": "{user-name}" },
+    { "type": "title",    "key": "│ \ue714  hname  ", "keyColor": "#bccd9d",  "format": "{host-name}" },
+    { "type": "os",       "key": "│ \uf83c  distro ", "keyColor": "#f9bb72",   "format": "{name}" },
+    { "type": "kernel",   "key": "│ \uf824  kernel ", "keyColor": "#dfc1a2", "format": "{release}" },
+    { "type": "uptime",   "key": "│ \uf017  uptime ", "keyColor": "#bccd9d" },
+    { "type": "shell",    "key": "│ \uf489  shell  ", "keyColor": "#f9bb72",   "format": "{pretty-name} {version}" },
+    { "type": "packages", "key": "│ \uf8d5  pkgs   ", "keyColor": "#dfc1a2", "format": "{all}" },
+    { "type": "memory",   "key": "│ \uf85a  memory ", "keyColor": "#bccd9d" },
 
-    { "type": "custom", "format": "├───────────┤", "outputColor": "#8d9199" },
+    { "type": "custom", "format": "├───────────┤", "outputColor": "#9d8e81" },
 
-    { "type": "colors",   "key": "│ \uf8d7  colors ", "keyColor": "#a4c9fe", "symbol": "circle" },
+    { "type": "colors",   "key": "│ \uf8d7  colors ", "keyColor": "#f9bb72", "symbol": "circle" },
 
-    { "type": "custom", "format": "╰───────────╯", "outputColor": "#8d9199" }
+    { "type": "custom", "format": "╰───────────╯", "outputColor": "#9d8e81" }
   ]
 }

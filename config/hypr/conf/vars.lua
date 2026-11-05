@@ -21,5 +21,6 @@ M.wallpaper    = M.scripts .. "/wallpaper.sh"
 M.wallPicker   = M.scripts .. "/wallpaper-picker.sh"
 M.screenshot   = M.scripts .. "/screenshot.sh"
 M.gamemode     = M.scripts .. "/gamemode.sh"
+M.remoteOnly   = M.scripts .. "/remote-only.sh"
 
 return M

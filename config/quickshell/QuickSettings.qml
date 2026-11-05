@@ -83,6 +83,7 @@ BarItem {
                         if (root.source)
                             t.push({ key: "mic", icon: "󰍬", label: "Microphone", on: !root.micMuted });
                         t.push({ key: "game", icon: "󰊴", label: "Game mode", on: Sys.gameMode });
+                        t.push({ key: "caffeine", icon: "󰅶", label: "Caffeine", on: Sys.caffeine });
                         return t;
                     }
 
@@ -145,6 +146,7 @@ BarItem {
                                                  root.source.audio.muted = !root.source.audio.muted;
                                              break;
                                 case "game": Sys.toggleGameMode(); break;
+                                case "caffeine": Sys.toggleCaffeine(); break;
                                 }
                             }
                         }
@@ -370,7 +372,7 @@ BarItem {
                 Repeater {
                     model: [
                         { label: "Wi-Fi", cmd: ["/bin/sh", "-c", "$HOME/.config/rofi/scripts/wifi.sh"] },
-                        { label: "Bluetooth", cmd: ["/bin/sh", "-c", "$HOME/.config/rofi/scripts/bluetooth.sh"] },
+                        { label: "Bluetooth", page: "bluetooth" },
                         { label: "Mixer", cmd: ["pavucontrol"] }
                     ]
 
@@ -396,11 +398,57 @@ BarItem {
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
+                                // A settings page opens in place (sticky, replaces
+                                // this popup); the rest are external programs.
+                                if (linkBtn.modelData.page) {
+                                    Panels.settingsPage = linkBtn.modelData.page;
+                                    Panels.set("settings", root.screenName);
+                                    return;
+                                }
                                 Quickshell.execDetached(linkBtn.modelData.cmd);
                                 Panels.close();
                             }
                         }
                     }
+                }
+            }
+
+            // Own full-width row rather than a fourth chip above: at 380 px the
+            // four would come out ~83 px each and "Advanced settings" does not
+            // fit. Opens the settings window straight from here instead of
+            // shelling out to `qs ipc call settings`, which would go out to the
+            // IPC socket and come back into this same process. No Panels.close()
+            // either: settings is a sticky panel, so set() replaces this popup.
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: 32
+                radius: Theme.radiusSmall
+                color: advMouse.containsMouse ? Theme.surfaceHigh : Theme.surfaceLow
+
+                RowLayout {
+                    anchors.centerIn: parent
+                    spacing: 8
+
+                    Text {
+                        text: "󰒓"
+                        color: Theme.text
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSize
+                    }
+                    Text {
+                        text: "Advanced settings"
+                        color: Theme.text
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSize - 2
+                    }
+                }
+
+                MouseArea {
+                    id: advMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: Panels.set("settings", root.screenName)
                 }
             }
         }

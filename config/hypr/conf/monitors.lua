@@ -53,8 +53,13 @@ hl.monitor({
 -- scaled to the launcher (see themes/launcher.rasi).
 hl.monitor({
     output   = "DP-1",
-    mode     = "1920x1080@60",
-    position = "-1300x-720",
+    -- 4:3 output to match the projector's Picture Format = 4:3 (fits Camilo's screen).
+    -- Sending native 16:9 into the projector's 4:3 mode stretched the image; a 1440x1080
+    -- (4:3) signal maps 1:1 into the panel's 4:3 region, correct aspect, no rescale, low lag.
+    mode     = "modeline 129.00 1440 1528 1680 1920 1080 1083 1087 1120 -hsync +vsync",
+    -- Flush above the top-left of DP-3 (bottom edge at y=0, x from 0): push the cursor
+    -- to the top-left corner of the primary screen to cross onto the projector.
+    position = "0x-720",
     scale    = 1.5,
 })
 

@@ -205,3 +205,11 @@ bind("O", function()
     hl.monitor({ output = "HDMI-A-1", mode = "1920x1080@75.01", position = "-1920x180", scale = 1 })
     hl.notification.create({ text = "HDMI-A-1 → 1080p 75 Hz", timeout = 2000, icon = "ok" })
 end, "HDMI back to normal")
+
+-- Same thing, but with every other output disabled: Sunshine grabs the first
+-- monitor Wayland lists and that is DP-3 as long as DP-3 is awake, so when the
+-- 2K panel was left on there is no way to move the stream from the client. The
+-- script arms a deadman that brings the screens back if no client is connected
+-- two minutes later (see scripts/remote-only.sh — there is no SSH here).
+bind("SHIFT + I", hl.dsp.exec_cmd(V.remoteOnly .. " on"),  "Stream screen only (iPad mode)")
+bind("SHIFT + O", hl.dsp.exec_cmd(V.remoteOnly .. " off"), "All monitors back on")

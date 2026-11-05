@@ -3,8 +3,9 @@
 Backup and installer for my visual configuration: if I reinstall, move to
 another machine or break something, this brings it all back.
 
-Private repository. It is not meant for anyone else, so the paths and the
-decisions are mine.
+Made for my own machine, so the paths and the decisions are mine. If you are
+borrowing it: run `./install.sh --dry-run` first, and expect to adjust
+`config/hypr/conf/monitors.lua` to your outputs.
 
 ## What is in here
 
@@ -50,7 +51,7 @@ For the packages:
 ./install.sh --packages
 ```
 
-That installs the official-repo ones. The 38 AUR packages (quickshell among
+That installs the official-repo ones. The 37 AUR packages (quickshell among
 them) need `paru` or `yay`; the script prints the command.
 
 ## Deliberately not in here

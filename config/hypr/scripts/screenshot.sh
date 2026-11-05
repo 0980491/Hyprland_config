@@ -18,6 +18,9 @@ notify_shot() {
 region() {
     local geom
     geom=$(slurp -d -b '#19120d99' -c '#ffb784ff' -w 2) || exit 0
+    # Let the compositor repaint once without slurp's overlay, or its border
+    # and dimming end up in the capture (its layer also has no_anim in rules.lua).
+    sleep 0.1
     grim -g "$geom" "$1"
 }
 

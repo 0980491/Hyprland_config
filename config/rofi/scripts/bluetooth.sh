@@ -21,8 +21,33 @@ if [[ "$POWER" != "yes" ]]; then
     exit 0
 fi
 
-# Scan in the background while the menu is open
-(bluetoothctl --timeout 12 scan on >/dev/null 2>&1 &) >/dev/null 2>&1
+# BlueZ drops unpaired devices from its cache the moment discovery stops, so a
+# short --timeout scan purges its own findings before the menu can list them.
+# Discovery has to stay up across the re-exec and be torn down explicitly.
+SCAN_PID="${XDG_RUNTIME_DIR:-/tmp}/rofi-bt-scan.pid"
+
+scan_alive() {
+    [[ -f "$SCAN_PID" ]] && kill -0 "$(cat "$SCAN_PID" 2>/dev/null)" 2>/dev/null
+}
+
+start_scan() {
+    scan_alive && return 0
+    # setsid detaches the scan so it outlives the exec, and the child records
+    # its own pid because $! would only ever name the setsid wrapper.
+    setsid bash -c 'echo $$ > "'"$SCAN_PID"'"; exec bluetoothctl --timeout 180 scan on' \
+        >/dev/null 2>&1 &
+    sleep 1
+}
+
+stop_scan() {
+    if [[ -f "$SCAN_PID" ]]; then
+        kill "$(cat "$SCAN_PID" 2>/dev/null)" 2>/dev/null
+        rm -f "$SCAN_PID"
+    fi
+    bluetoothctl scan off >/dev/null 2>&1
+}
+
+start_scan
 
 dev_line() { # MAC NAME  → a line with a state icon
     local mac="$1" name="$2" info conn paired icon
@@ -57,21 +82,23 @@ menu() {
 }
 
 SEL=$(menu | rofi -dmenu -i -p "Bluetooth" -theme "$THEME")
-[[ -z "$SEL" ]] && exit 0
+[[ -z "$SEL" ]] && { stop_scan; exit 0; }
 
 case "$SEL" in
-    *"Scan for devices")    bluetoothctl --timeout 8 scan on >/dev/null 2>&1; exec "$0" ;;
-    *"Turn Bluetooth off")  bluetoothctl power off >/dev/null && notify "Bluetooth disabled"; exit 0 ;;
+    # Keep the scan running through the re-exec so findings survive the relist.
+    *"Scan for devices")    start_scan; sleep 6; exec "$0" ;;
+    *"Turn Bluetooth off")  stop_scan; bluetoothctl power off >/dev/null && notify "Bluetooth disabled"; exit 0 ;;
 esac
 
 MAC=$(grep -F "$SEL	" "$MAP" | head -1 | cut -f2)
-[[ -z "$MAC" ]] && exit 0
+[[ -z "$MAC" ]] && { stop_scan; exit 0; }
 
 INFO=$(bluetoothctl info "$MAC")
 CONN=$(awk '/Connected:/{print $2; exit}' <<< "$INFO")
 PAIRED=$(awk '/Paired:/{print $2; exit}' <<< "$INFO")
 
 if [[ "$CONN" == "yes" ]]; then
+    stop_scan
     ACT=$(printf '󰅖  Disconnect\n󰗨  Forget\n󰜺  Nothing\n' | rofi -dmenu -i -p "${SEL}" -theme "$THEME")
     case "$ACT" in
         *Disconnect) bluetoothctl disconnect "$MAC" >/dev/null && notify "Disconnected" ;;
@@ -82,9 +109,11 @@ fi
 
 if [[ "$PAIRED" != "yes" ]]; then
     notify "Pairing…" "$SEL"
-    bluetoothctl pair "$MAC" >/dev/null 2>&1
-    bluetoothctl trust "$MAC" >/dev/null 2>&1
+    # Keyboards need an agent present to answer the passkey exchange, and
+    # pairing needs the adapter bondable — a bare `pair` call has neither.
+    bluetoothctl --timeout 30 -- <<< "$(printf 'agent KeyboardDisplay\ndefault-agent\npairable on\npair %s\ntrust %s\nquit\n' "$MAC" "$MAC")" >/dev/null 2>&1
 fi
+stop_scan
 
 if bluetoothctl connect "$MAC" >/dev/null 2>&1; then
     notify "Connected" "$SEL"

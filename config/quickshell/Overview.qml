@@ -236,7 +236,21 @@ PanelWindow {
                                             ScreencopyView {
                                                 id: shot
                                                 anchors.centerIn: parent
-                                                captureSource: winTile.modelData.wayland
+                                                // Only ask for a capture while the overview is
+                                                // actually up and the monitor is still there.
+                                                //
+                                                // These tiles exist even while the overview is
+                                                // closed, and the binding below re-evaluates on
+                                                // any window or workspace churn — so captures
+                                                // were being requested with the panel hidden.
+                                                // Hyprland 0.56.2 segfaults in
+                                                // CScreenshareSession::init when a toplevel-export
+                                                // capture arrives while no output is active
+                                                // (dpms off), which took the whole session down
+                                                // twice on 2026-08-24. A null source asks for
+                                                // nothing, so the closed overview is now inert.
+                                                captureSource: (root.visible && root.hMonitor)
+                                                    ? winTile.modelData.wayland : null
                                                 live: false
                                                 paintCursor: false
 
@@ -451,7 +465,9 @@ PanelWindow {
 
             ScreencopyView {
                 anchors.centerIn: parent
-                captureSource: overlay.dragSource
+                // Same guard as the tiles: never hold a capture open
+                // for a screen that is on its way out.
+                captureSource: root.visible ? overlay.dragSource : null
                 live: false
                 paintCursor: false
 

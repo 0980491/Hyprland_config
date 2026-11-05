@@ -5,6 +5,7 @@ singleton Sys 1.0 Sys.qml
 singleton Notifications 1.0 Notifications.qml
 singleton Panels 1.0 Panels.qml
 singleton Hypr 1.0 Hypr.qml
+singleton Bt 1.0 Bt.qml
 
 BarItem 1.0 BarItem.qml
 Island 1.0 Island.qml
@@ -22,3 +23,4 @@ NotificationToasts 1.0 NotificationToasts.qml
 UtilsWidget 1.0 UtilsWidget.qml
 Overview 1.0 Overview.qml
 WallpaperPicker 1.0 WallpaperPicker.qml
+Settings 1.0 Settings.qml

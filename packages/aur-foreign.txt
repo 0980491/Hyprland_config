@@ -6,13 +6,11 @@ claude-desktop
 darkly-bin
 davinci-resolve
 electron37
+foo2zjs-nightly
 gtk2
 heroic-games-launcher-bin
 illogical-impulse-bibata-modern-classic-bin
-lib32-gst-plugins-base-libs
-lib32-gstreamer
 libpng12
-libsoup
 linux-wallpaperengine-git
 logiops
 matugen-bin
@@ -22,6 +20,7 @@ osu-lazer-bin
 osu-mime
 proton-ge-custom-bin
 python311
+qbz-bin
 qt5-charts
 qt5-location
 qt5-webchannel

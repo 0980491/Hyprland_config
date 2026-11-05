@@ -14,6 +14,7 @@ import Quickshell.Hyprland
 //
 // From outside:
 //   qs ipc call panel toggle calendar|notifications|volume|resources|quicksettings|media|overview
+//   (the settings window has its own target: qs ipc call settings toggle)
 //   qs ipc call panel close
 //   qs ipc call panel dnd
 Singleton {
@@ -22,8 +23,15 @@ Singleton {
     property string openPanel: ""
     property string openScreen: ""
 
+    // Which page the settings window is showing. It lives here rather than in
+    // Settings.qml because there is one of those windows per monitor and they
+    // all have to agree — and because the IPC handler in shell.qml can then
+    // point it at a page before opening the window.
+    property string settingsPage: "general"
+
     // Full-screen, keyboard-driven panels must not close on hover
     readonly property bool sticky: openPanel === "overview" || openPanel === "wallpaper"
+                                || openPanel === "settings"
 
     readonly property int openDelay: 110
     readonly property int closeDelay: 250
